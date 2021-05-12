@@ -1,0 +1,53 @@
+
+server:
+  port: 9090
+
+spring:
+  application:
+    name: app-gateway
+  cloud:
+    gateway:
+      routes:
+      - id: user-service
+        uri: lb://USER-SERVICE
+        predicates:
+        - Path=/user/**
+        filters:
+        - name: Hystrix
+          args: 
+            name: fallback
+            fallbackUri: forward:/error/message
+      - id: order-service
+        uri: lb://ORDER-SERVICE
+        predicates:
+        - Path=/orders/**
+        filters:
+        - name: Hystrix
+          args:
+            name: fallback
+            fallbackUri: forward:/error/message
+      - id: product-service
+        uri: lb://PRODUCT-SERVICE
+        predicates:
+        - Path=/product/**
+        filters:
+        - name: Hystrix
+          args:
+            name: fallback
+            fallbackUri: forward:/error/message
+          
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+        - "*"
+  
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    
+  instance:
+    hostname: localhost
+
